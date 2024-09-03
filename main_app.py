@@ -15,6 +15,25 @@ shutter_sound_enabled = False
 
 gestalt_path = Path.joinpath(Path.cwd(), "com.apple.MobileGestalt.plist")
 
+def get_ios_version(plist_path):
+    with open(plist_path, 'rb') as f:
+        plist = plistlib.load(f)
+    
+    version_string = plist.get("CacheExtra", {}).get("qNNddlUK+B/YlooNoymwgA", "")
+    
+    return version_string
+
+def is_version_at_least(version_string, major, minor):
+    version_parts = version_string.split('.')
+    major_version = int(version_parts[0])
+    minor_version = int(version_parts[1]) if len(version_parts) > 1 else 0
+    
+    if major_version > major:
+        return True
+    elif major_version == major and minor_version >= minor:
+        return True
+    return False
+
 def print_option(num: int, active: bool, message: str):
     txt = str(num) + ". "
     if active:
@@ -47,8 +66,12 @@ while running:
     if not passed_check and Path.exists(gestalt_path) and Path.is_file(gestalt_path):
         passed_check = True
     
+    version_string = get_ios_version(gestalt_path)
+    ios16orlater = is_version_at_least(version_string, 16, 0)
+
     if passed_check:
-        print_option(1, dynamic_island_enabled, "Toggle Dynamic Island")
+        if ios16orlater:
+            print_option(1, dynamic_island_enabled, "Toggle Dynamic Island")
         print_option(2, current_model_name != "", "Set Device Model Name")
         print_option(3, boot_chime_enabled, "Toggle Boot Chime")
         print_option(4, charge_limit_enabled, "Toggle Charge Limit")
@@ -79,8 +102,10 @@ while running:
             with open(gestalt_path, 'rb') as in_fp:
                 plist = plistlib.load(in_fp)
             
+            plist["CacheExtra"]["qNNddlUK+B/YlooNoymwgA"]
+
             # set the plist keys
-            if dynamic_island_enabled:
+            if dynamic_island_enabled and ios16orlater:
                 plist["CacheExtra"]["oPeik/9e8lQWMszEjbPzng"]["ArtworkDeviceSubType"] = 2556
             if current_model_name != "":
                 plist["CacheExtra"]["oPeik/9e8lQWMszEjbPzng"]["ArtworkDeviceProductDescription"] = current_model_name
