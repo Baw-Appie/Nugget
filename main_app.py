@@ -60,8 +60,8 @@ while running:
 '---'                       \\   \\  /   \\   \\  /   `----'              
                              `--`-'     `--`-'                        
     """)
-    print("by LeminLimez")
-    print("v1.0.1\n\n")
+    print("by LeminLimez + (minor-revision straight-tamago)")
+    print("v1.0.2-R\n\n")
     
     if not passed_check and Path.exists(gestalt_path) and Path.is_file(gestalt_path):
         passed_check = True
